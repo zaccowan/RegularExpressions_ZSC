@@ -1,5 +1,4 @@
 import java.io.*;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,11 +42,13 @@ public class NovelProcessor {
 
 
         try {
-            BufferedReader patternReader = new BufferedReader(new FileReader(new File(regexPath)));
+            File outputFile = new File( novelName + "_wc.txt");
+            FileWriter myWriter = new FileWriter(novelName + "_wc.txt");
 
+            BufferedReader patternReader = new BufferedReader(new FileReader(regexPath));
             String patternLine = patternReader.readLine();
             while (patternLine != null) {
-                BufferedReader novelReader = new BufferedReader(new FileReader(new File(novelPath)));
+                BufferedReader novelReader = new BufferedReader(new FileReader(novelPath));
 
                 Pattern pattern = Pattern.compile(patternLine);
                 String novelLine = novelReader.readLine();
@@ -59,30 +60,26 @@ public class NovelProcessor {
                     }
                     novelLine = novelReader.readLine(); // Get next line
                 }
-                System.out.println(patternLine + "|" + numMatches);
+                if (outputFile.createNewFile()) {
+                    System.out.println("Created Output File: " + outputFile.getName() + "\n");
+                }
+                else if (outputFile.canWrite()) {
+                    System.out.println( "Added to file: " +outputFile.getName());
+                    myWriter.write(patternLine + "|" + numMatches + "\n");
+                }
+                else {
+                    System.out.println("File already exists.");
+                }
+
+//                System.out.println(patternLine + "|" + numMatches);
 
                 patternLine = patternReader.readLine();
             }
+            myWriter.close();
 
         } // end try
         catch (IOException e) {
             throw new RuntimeException(e);
         } // end catch
-
-        try {
-            File outputFile = new File( "./" +novelName + "_wc.txt");
-
-            if (outputFile.createNewFile()) {
-                System.out.println("File created: " + outputFile.getName());
-                FileWriter myWriter = new FileWriter(novelName + "_wc.txt");
-                myWriter.write(novelName + " is lame.");
-                myWriter.close();
-            } else {
-                System.out.println("File already exists.");
-            }
-        } catch (IOException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
     } // end main
 } // end class
