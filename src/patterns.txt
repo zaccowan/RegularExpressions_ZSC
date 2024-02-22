@@ -1,7 +1,0 @@
-(G|g)(loom)[a-zA-Z]*
-(H|h)(aunt)[a-zA-Z]*
-(M|m)(yst)[a-zA-Z]*
-(F|f)(orebod)(eding)
-(M|m)(elanchol)[a-zA-Z]*
-(T|t)(err)(or|orize|ified|ible)
-(D|d)(esolate)(d)*
