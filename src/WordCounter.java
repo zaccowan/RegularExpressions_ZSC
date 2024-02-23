@@ -4,6 +4,21 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * <pre>
+ * WordCounter gathers all outputted *_wc.txt files from NovelProcessor and parses line by line.
+ * The unique patterns, that are shared among all the *_wc.txt files, are stored as the key in a HashMap.
+ * The count for each pattern in the *_wc.txt files is summed to store the total count for the pattern in all text files.
+ *
+ * The *_wc.txt files are gathered automatically using a file filter which only gathers files ending in "_wc.txt".
+ * These files are stored in a File array and can be ready with a Buffered reader by iterating over all the files.
+ * </pre>
+ * @author Zachary Cowan
+ * @version 1.0
+ * Assignment 4
+ * CS322 - Compiler Construction
+ * Spring 2024
+ */
 public class WordCounter {
     public static void main(String [] args) throws IOException {
         HashMap<String, Integer> wcHashMap = new HashMap<String, Integer>();
@@ -25,7 +40,12 @@ public class WordCounter {
                 // Since Count follows the last '|' in a line, the count is only in indices after the last '|'
                 // The following finds this index.
                 int countStartIndex = 0 ;
-                for( int j = 0 ; j < line.length() ; j++) if ( line.charAt(j) == '|' ) countStartIndex = j;
+                for( int j = line.length()-1 ; j > 0 ; j--) {
+                    if ( line.charAt(j) == '|' ) {
+                        countStartIndex = j;
+                        break;
+                    }
+                }
 
                 int currWordCount = Integer.parseInt(line.substring(countStartIndex+1));
                 String currPattern = line.substring(0 , countStartIndex);

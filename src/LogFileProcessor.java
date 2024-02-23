@@ -3,24 +3,66 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
+/**
+ * <pre>
+ * LogFileProcessor takes into two arguments via command line and uses Regular Expression to store the number of instances of
+ * IP address and users. IP address and users are stored in two respective HashMaps where:
+ *      Key - The IP address or user name of type String
+ *      Value - The count of the given key.
+ *          For example, if a user is referenced 3 times in the .log, the value for the user key (count) would be 3.
+ *          The same structure is followed for IP addresses.
+ *
+ * The nature of the HashMap does not allow for duplicate key's so, when a already present key is encountered again,
+ * a new value is calculated using the previous state of said value.
+ *      For example, if the count of user "bob" was 3, and the pattern detects "bob" again, the new count is 3+1 = 4.
+ *
+ * The HashMap's lack of duplicate keys also allows easy counting of unique users and IP addresses.
+ * The number of unique IPs and users is the number of rows in the HashMap. This can be accessed via the keySet().size() call.
+ * </pre>
+ * @author Zachary Cowan
+ * @version 1.0
+ * Assignment 4
+ * CS322 - Compiler Construction
+ * Spring 2024
+ */
 public class LogFileProcessor {
     public static void main(String [] args) throws IOException {
+        // Gets first argument from command line call.
+        // By Design the user needs to present the name of the file they wish to process.
+        //
         String fileName = args[0];
+        // Conditional allows user to neglect the .log ending when entering the file name.
+        // if it is absent from user input, append it to the end of the string.
         if(!fileName.endsWith(".log")) {
             fileName = fileName.concat(".log");
         }
 
+        // Hash maps used to store the pattern matches
+        // IP address and usernames are the keys of their respective maps
+        // Count is the value of both maps
         HashMap<String, Integer> ipHashMap = new HashMap<>();
         HashMap<String, Integer> userHashMap = new HashMap<>();
 
-
+        // Create a file reference to the .log file specified by user
         File logFile = new File(fileName);
-        BufferedReader br = new BufferedReader(new FileReader(fileName));
+        BufferedReader br = new BufferedReader(new FileReader(fileName)); // user to read the file
 
+        // Pattern uses to detect IPv4 Address
+        // Such address come in the very general form:   w.x.y.z
+        // Where w, x, y, and z take the place of a number with anywhere from 1 to 3 digits
         Pattern ipv4Pattern = Pattern.compile("([0-9]{1,3}\\.){3}([0-9]{1,3})");
+
+        // Pattern used to detect users referenced in the log file
+        // All user references follow the term "user "
+        // The following pattern matches the entirety of "user <user_name>"
+        // The prefix "user " will have to be stripped before storing.
         Pattern userPattern = Pattern.compile("user [a-zA-Z]+");
+
+        // Counter for number of lines processed
         int numLinesProcessed = 0 ;
+
+        // Extra counts to find the number of references of both IP address and users
+        // These are not the same as the unique counts because duplicates are present
         int numIPv4References = 0;
         int numUserReferences = 0;
 
@@ -32,7 +74,9 @@ public class LogFileProcessor {
             // Find all IPv4 matches in line
             while ( matcher.find()) {
                 String ipInstance = matcher.group();
-                if( ipHashMap.containsKey(ipInstance)) ipHashMap.computeIfPresent(ipInstance, (key, value) -> value + 1);
+
+                // Add instance to hash map with respect to already existing entries
+                if( ipHashMap.containsKey(ipInstance)) ipHashMap.computeIfPresent(ipInstance, (key, value) -> value + 1); // recalculate value for key
                 else ipHashMap.put(ipInstance, 1);
                 numIPv4References++;
             }
@@ -42,10 +86,12 @@ public class LogFileProcessor {
             // Find all user matches in line
             while ( matcher.find()) {
                 String userInstance = matcher.group();
-                String userName = userInstance.substring(5); // to strip "user " from pattern match
-                if( userName.equals("unknown")) continue; // do not add "unknown" because it is recognized by the pattern but is not referencing an actual user
+                String userName = userInstance.substring(5); // to strip prefix "user " from pattern match
+                if( userName.equals("unknown")) continue; // do not add user "unknown"
+                // "user unknown" does not reference a user in the system but the lack of one
 
-                if( userHashMap.containsKey(userName)) userHashMap.computeIfPresent(userName, (key, value) -> value + 1);
+                // Add instance to hash map with respect to already existing entries
+                if( userHashMap.containsKey(userName)) userHashMap.computeIfPresent(userName, (key, value) -> value + 1); // recalculate value for key
                 else userHashMap.put(userName, 1);
 
                 numUserReferences++;
@@ -53,6 +99,13 @@ public class LogFileProcessor {
 
             line = br.readLine();
         }
+
+        /*
+         * Design of command line arguments allows the user to use one of three output modes. If argument two is:
+         *      0 - default output with general information about the file and its counts are printed.
+         *      1 - unique IP addresses and their respective counts are printed
+         *      2 - unique users and their respective counts are printed
+         */
 
         if( args[1].equals("1")) {
             for( String key : ipHashMap.keySet()) {
