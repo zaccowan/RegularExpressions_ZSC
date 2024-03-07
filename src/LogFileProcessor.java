@@ -26,11 +26,26 @@ import java.util.regex.Pattern;
  * Spring 2024
  */
 public class LogFileProcessor {
-    public static void main(String [] args) throws IOException {
+
+    public static void main(String[] args) throws IOException {
+        new LogFileProcessor(args);
+    }
+
+    private final HashMap<String, Integer> ipHashMap;
+    private final HashMap<String, Integer> userHashMap;
+
+    private String fileName;
+
+    private int numLinesProcessed;
+    private int numIPv4References;
+    private int numUserReferences;
+
+    LogFileProcessor(String [] args) throws IOException {
         // Gets first argument from command line call.
         // By Design the user needs to present the name of the file they wish to process.
         //
-        String fileName = args[0];
+        fileName = args[0];
+
         // Conditional allows user to neglect the .log ending when entering the file name.
         // if it is absent from user input, append it to the end of the string.
         if(!fileName.endsWith(".log")) {
@@ -40,8 +55,8 @@ public class LogFileProcessor {
         // Hash maps used to store the pattern matches
         // IP address and usernames are the keys of their respective maps
         // Count is the value of both maps
-        HashMap<String, Integer> ipHashMap = new HashMap<>();
-        HashMap<String, Integer> userHashMap = new HashMap<>();
+        ipHashMap = new HashMap<>();
+        userHashMap = new HashMap<>();
 
         // Create a file reference to the .log file specified by user
         File logFile = new File(fileName);
@@ -59,12 +74,12 @@ public class LogFileProcessor {
         Pattern userPattern = Pattern.compile("user [a-zA-Z]+");
 
         // Counter for number of lines processed
-        int numLinesProcessed = 0 ;
+        numLinesProcessed = 0 ;
 
         // Extra counts to find the number of references of both IP address and users
         // These are not the same as the unique counts because duplicates are present
-        int numIPv4References = 0;
-        int numUserReferences = 0;
+        numIPv4References = 0;
+        numUserReferences = 0;
 
         String line = br.readLine();
         while( line != null) {
@@ -107,24 +122,54 @@ public class LogFileProcessor {
          *      2 - unique users and their respective counts are printed
          */
 
-        if( args[1].equals("1")) {
-            for( String key : ipHashMap.keySet()) {
-                System.out.println(key +": " + ipHashMap.get(key));
-            }
-        } else if( args[1].equals("2")) {
-            for( String key : userHashMap.keySet()) {
-                System.out.println(key +": " + userHashMap.get(key));
-            }
-        } else {
-            System.out.println(numLinesProcessed + " lines in the log file were parsed.\n"+
-                    "Found " +numIPv4References + " total ipv4 address references.\n" +
-                    "Found " +numUserReferences + " total user references.\n" +
+        if( args[1].equals("1")) printIPHashMap();
+        else if( args[1].equals("2")) printUserHashMap();
+        else printHashMapsOverview();
 
-                    "There are " + ipHashMap.keySet().size() + " unique IPV4 addresses in the log.\n" +
-                    "There are " + userHashMap.keySet().size() + " unique users in the log.");
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public int getIPHashSize() {
+        return ipHashMap.keySet().size();
+    }
+    public int getUserHashSize() {
+        return userHashMap.keySet().size();
+    }
+
+    public int getNumLinesProcessed() {
+        return numLinesProcessed;
+    }
+    public int getNumIPv4References() {
+        return numIPv4References;
+    }
+    public int getNumUserReferences() {
+        return numUserReferences;
+    }
+
+
+    public void printIPHashMap() {
+        for( String key : ipHashMap.keySet()) {
+            System.out.println(key +": " + ipHashMap.get(key));
         }
     }
 
+    public void printUserHashMap() {
+        for( String key : userHashMap.keySet()) {
+            System.out.println(key +": " + userHashMap.get(key));
+        }
+    }
+
+    public void printHashMapsOverview() {
+        System.out.println(getNumLinesProcessed() + " lines in the log file (\"" + getFileName() + "\") were parsed.\n"+
+                "Found " + getNumIPv4References() + " total ipv4 address references.\n" +
+                "Found " + getNumUserReferences() + " total user references.\n" +
+
+                "There are " + getIPHashSize() + " unique IPV4 addresses in the log.\n" +
+                "There are " + getUserHashSize() + " unique users in the log.");
+    }
 
 
 }
