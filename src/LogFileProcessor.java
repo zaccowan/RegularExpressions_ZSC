@@ -27,19 +27,50 @@ import java.util.regex.Pattern;
  */
 public class LogFileProcessor {
 
+    /**
+     * Main method
+     * @param args first command line argument to be file name to process, second argument to be printing method.
+     */
     public static void main(String[] args) throws IOException {
         new LogFileProcessor(args);
     }
 
+
+    /**
+     * Hash maps used to store the pattern matches for IPv4 addresses.
+     *      Keys : String of unique ip address
+     *      Value : Integer count of instances of given key
+     */
     private final HashMap<String, Integer> ipHashMap;
+    /**
+     * Hash maps used to store the pattern matches for usernames.
+     *      Keys : String of unique username.
+     *      Value : Integer count of instances of given key.
+     */
     private final HashMap<String, Integer> userHashMap;
 
+    /**
+     * Name of file processed by the program.
+     */
     private String fileName;
 
+    /**
+     * Total count of lines processed by the program for specified file
+     */
     private int numLinesProcessed;
+    /**
+     * Total count of all references to an IP address.
+     */
     private int numIPv4References;
+    /**
+     * Total count of all references to a username.
+     */
     private int numUserReferences;
 
+    /**
+     * Constructor that takes in arguments from the command line, passed in through main and processes a log file.
+     * @param args Command line arguments array of size 2, where element 1 is the file name and element 2 is the type of print method to perform.
+     */
     LogFileProcessor(String [] args) throws IOException {
         // Gets first argument from command line call.
         // By Design the user needs to present the name of the file they wish to process.
@@ -53,7 +84,7 @@ public class LogFileProcessor {
         }
 
         // Hash maps used to store the pattern matches
-        // IP address and usernames are the keys of their respective maps
+        // IP address and usernames found in log file are the keys of their respective maps
         // Count is the value of both maps
         ipHashMap = new HashMap<>();
         userHashMap = new HashMap<>();
@@ -128,40 +159,78 @@ public class LogFileProcessor {
 
     }
 
+    /**
+     * Get the file name processed by the program.
+     * @return fileName which is the file name passed in by user
+     */
     public String getFileName() {
         return fileName;
     }
 
+    /**
+     * Get the total number of rows for the ip hash map (unique ip addresses from file).
+     * @return the number of rows in the IP Hash Map
+     */
     public int getIPHashSize() {
         return ipHashMap.keySet().size();
     }
+    /**
+     * Get the total number of rows for the user hash map (unique usernames from file).
+     * @return the number of rows in the user Hash Map
+     */
     public int getUserHashSize() {
         return userHashMap.keySet().size();
     }
 
+
+    /**
+     * Get the total number of lines processed for the designated file.
+     * @return The total number of lines processed.
+     */
     public int getNumLinesProcessed() {
         return numLinesProcessed;
     }
+    /**
+     * Get the total number of references to an IPv4 address in the file.
+     * @return The total number of ip address references.
+     */
     public int getNumIPv4References() {
         return numIPv4References;
     }
+    /**
+     * Get the total number of references to a username in the file.
+     * @return The total number of username references.
+     */
     public int getNumUserReferences() {
         return numUserReferences;
     }
 
 
+    /**
+     * Print all the unique IP address and their count.
+     */
     public void printIPHashMap() {
         for( String key : ipHashMap.keySet()) {
             System.out.println(key +": " + ipHashMap.get(key));
         }
     }
-
+    /**
+     * Print all the unique usernames and their count.
+     */
     public void printUserHashMap() {
         for( String key : userHashMap.keySet()) {
             System.out.println(key +": " + userHashMap.get(key));
         }
     }
 
+    /**
+     * Print general information about a file such as:
+     *      number of lines processed,
+     *      number of total ip references,
+     *      number of total user references,
+     *      number of unique ip address, and
+     *      number of unique usernames.
+     */
     public void printHashMapsOverview() {
         System.out.println(getNumLinesProcessed() + " lines in the log file (\"" + getFileName() + "\") were parsed.\n"+
                 "Found " + getNumIPv4References() + " total ipv4 address references.\n" +
